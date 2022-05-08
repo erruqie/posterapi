@@ -9,9 +9,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
 from aiogram.types import InputFile
 
-from config import TOKEN
 from states import UploadState
-
 
 logging.basicConfig(level=logging.INFO)
 
