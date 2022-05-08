@@ -1,0 +1,5 @@
+__pycache__
+*.jpg
+output_*.png
+input_*.png
+.venv
