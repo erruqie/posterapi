@@ -12,4 +12,4 @@ TOKEN = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
 3. Запустите бота
 `python3 main.py`
 ##
-Copyright 2022 © EITHER.DIGITAL. All Rights Reserved. [Privacy Policy](https://either.digital/privacy-policy)
+[GPL-3.0](./LICENSE) © [EITHER.DIGITAL](https://either.digital)
