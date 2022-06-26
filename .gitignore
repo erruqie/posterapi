@@ -3,3 +3,4 @@ __pycache__
 output_*.png
 input_*.png
 .venv
+.env

@@ -2,19 +2,19 @@ import os
 import logging
 import textwrap
 
-from PIL import Image, ImageDraw, ImageFont
-from aiogram import Bot, types, filters
-from aiogram.dispatcher import Dispatcher, FSMContext
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from dotenv import load_dotenv
+from states import UploadState
 from aiogram.utils import executor
 from aiogram.types import InputFile
+from aiogram import Bot, types, filters
+from PIL import Image, ImageDraw, ImageFont
+from aiogram.dispatcher import Dispatcher, FSMContext
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from states import UploadState
-
+load_dotenv('.env')
 logging.basicConfig(level=logging.INFO)
 
-TOKEN = "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-bot = Bot(token=TOKEN, parse_mode="HTML")
+bot = Bot(token=os.environ.get('BOT_TOKEN'), parse_mode="HTML")
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 @dp.message_handler(filters.Command("create"))
