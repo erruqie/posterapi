@@ -9,7 +9,7 @@ from flask import Flask, request, send_file
 app = Flask(__name__)
 
 @app.route('/createimage', methods=['GET'])
-async def createimage():
+def createimage():
     UID = uuid.uuid1()
     title = request.args['title']
     artist = request.args['artist']
@@ -21,11 +21,11 @@ async def createimage():
     open(inputfile, "wb").write(response.content)
 
     outputfile = f'output_{UID}.png'
-    await create_image(title, artist, genre, type, inputfile, outputfile)
+    create_image(title, artist, genre, type, inputfile, outputfile)
     os.remove(inputfile)
     return send_file(outputfile)
 
-async def create_image(title: str, artist: str, genre: str, type: str, inputfile: str,
+def create_image(title: str, artist: str, genre: str, type: str, inputfile: str,
                        outputfile: str):
     artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 60)
     title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 90)
@@ -107,4 +107,4 @@ def text_wrap(text,font,writing,max_width,max_height):
 
 if __name__ == "__main__":
     from waitress import serve
-    serve(app, host="127.0.0.1", port=1337)
+    serve(app, host="0.0.0.0", port=1337)
