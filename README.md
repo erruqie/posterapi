@@ -1,4 +1,4 @@
-# postertelegrambot
+# flask_images_creator
 
 <details>
   <summary>Пример постера</summary>
@@ -8,8 +8,7 @@
 ## Запуск
 1. Установите необходимые библиотеки
 `pip install -r requirements.txt`
-2. Переименуйте файл `.env.example` в `.env` и подставьте туда свои данные
-3. Запустите бота
+2. Запустите Flask-приложение
 ```bash
 python3 main.py
 ````

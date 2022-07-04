@@ -1,113 +1,69 @@
 import os
-import logging
+import uuid
 import textwrap
+import requests
 
-from dotenv import load_dotenv
-from states import UploadState
-from aiogram.utils import executor
-from aiogram.types import InputFile
-from aiogram import Bot, types, filters
 from PIL import Image, ImageDraw, ImageFont
-from aiogram.dispatcher import Dispatcher, FSMContext
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from flask import Flask, request, send_file
 
-load_dotenv('.env')
-logging.basicConfig(level=logging.INFO)
+app = Flask(__name__)
 
-bot = Bot(token=os.environ.get('BOT_TOKEN'), parse_mode="HTML")
-dp = Dispatcher(bot, storage=MemoryStorage())
+@app.route('/createimage', methods=['GET'])
+async def createimage():
+    UID = uuid.uuid1()
+    title = request.args['title']
+    artist = request.args['artist']
+    genre = request.args['genre']
+    type = request.args['type']
+    cover = request.args['cover']
+    inputfile = f'input_{UID}.png'
+    response = requests.get(cover)
+    open(inputfile, "wb").write(response.content)
 
-@dp.message_handler(filters.Command("create"))
-async def process_create_command(message: types.Message):
-    await message.reply(
-        "Отправьте нужное изображение и в описание "
-        "укажите наименование релиза и имя исполнителя через |\n\n"
-        "<b>Например:</b> <code>Снова я напиваюсь|ИванЗоло2004</code>"
-        "\n\nДля отмены используйте /cancel")
-    await UploadState.uploading_photo.set()
+    outputfile = f'output_{UID}.png'
+    await create_image(title, artist, genre, type, inputfile, outputfile)
+    os.remove(inputfile)
+    return send_file(outputfile)
 
-
-@dp.message_handler(filters.CommandStart())
-async def process_start_command(message: types.Message):
-    await message.reply(
-        "Привет. Используй команду /create и я сделаю изображение для поста"
-    )
-
-
-@dp.message_handler(filters.Command("cancel"), state="*")
-async def process_cancel_command(message: types.Message, state: FSMContext):
-    if not await state.get_state():
-        return await message.reply("Нечего отменять...")
-    else:
-        await state.finish()
-        return await message.reply("Успешно!")
-
-
-@dp.message_handler(content_types=types.ContentTypes.PHOTO,
-                    state=UploadState.uploading_photo)
-async def process_photo_mmr(message: types.Message, state: FSMContext):
-    input_img = 'input_' + str(message.chat.id) + '.png'
-    output_img = 'output_' + str(message.chat.id) + '.png'
-
-    await message.photo[-1].download(destination_file=input_img)
-
-    separator = "|"
-    arguments = message.caption
-    if not arguments:
-        return await message.reply(
-            "Отправьте нужное изображение и в описание "
-            "укажите наименование релиза и имя исполнителя через |\n\n"
-            "<b>Например:</b> <code>Снова я напиваюсь|ИванЗоло2004</code>"
-            "\n\nДля отмены используйте /cancel")
-    args = arguments.split(separator)
-
-    if len(args) < 2:
-        os.remove(input_img)
-        return await message.reply("Вы пропустили один аргумент")
-    else:
-        if os.path.isfile(input_img):
-            await create_image(args[0], args[1], input_img, output_img)
-            await message.reply("Отправляю изображение: " + args[1] + " - " +
-                                args[0])
-            await types.ChatActions.upload_document(1)
-            await message.answer_document(InputFile(output_img))
-        else:
-            await message.reply(
-                "Изображение обложки не найдено! Попробуйте отправить его заново"
-            )
-    os.remove(output_img)
-    os.remove(input_img)
-    await state.finish()
-
-
-async def create_image(title: str, artist: str, inputfile: str,
+async def create_image(title: str, artist: str, genre: str, type: str, inputfile: str,
                        outputfile: str):
-    title_font = ImageFont.truetype('resources/fonts/SFPRODISPLAYREGULAR.ttf', 96)
-    artist_font = ImageFont.truetype('resources/fonts/SFPRODISPLAYBOLD.ttf', 128)
+    artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 60)
+    title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 90)
+    info_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 35)
     cover = Image.open(inputfile)
-    background = Image.open('resources/images/background.png')
-    small_cover = cover.resize((1020, 1020), Image.ANTIALIAS)
+    background = Image.open('resources/images/bg_new_either.png')
+    small_cover = cover.resize((650, 650), Image.ANTIALIAS)
     round_corner = circle_corner(small_cover, 35)
-    background.paste(round_corner, (1377, 210), round_corner)
+    background.paste(round_corner, (670, 170), round_corner)
     draw_title = ImageDraw.Draw(background)
 
-    artisty = 375
+    artisty = 220
     for line in textwrap.wrap(artist, width=15):
-        draw_title.text((216, artisty),
+        draw_title.text((60, artisty),
                         line,
                         font=artist_font,
-                        fill=('#000000'))
+                        fill=('#DDEBF3'))
         artisty += artist_font.getsize(line)[1]
 
-    titley = artisty + 50
-    for line in textwrap.wrap(title, width=25):
-        draw_title.text((216, titley),
+    titley = artisty + 20
+    for line in textwrap.wrap(title, width=10):
+        draw_title.text((60, titley),
                         line,
                         font=title_font,
-                        fill=("#000000"))
+                        fill=("#FFFFFF"))
         titley += title_font.getsize(line)[1]
-    background.save(outputfile)
 
+    draw_title.text((274, 728),
+                        type,
+                        font=info_font,
+                        fill=("#EBEEF0"))
+
+    draw_title.text((177, 783),
+                    genre,
+                    font=info_font,
+                    fill=("#EBEEF0"))
+    background.save(outputfile)
+    pass
 
 def circle_corner(img: Image.Image, radius: int):
     circle = Image.new('L', (radius * 2, radius * 2), 0)
@@ -148,5 +104,7 @@ def text_wrap(text,font,writing,max_width,max_height):
                 break
     return '\n'.join([' '.join(line) for line in lines])
 
-if __name__ == '__main__':
-    executor.start_polling(dp)
+
+if __name__ == "__main__":
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8080)
