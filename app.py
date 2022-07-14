@@ -11,7 +11,6 @@ app = Flask(__name__)
 
 @app.route('/createimage', methods=['GET'])
 def createimage():
-    UID = uuid.uuid1()
     title = request.args['title']
     artist = request.args['artist']
     genre = request.args['genre']
@@ -23,11 +22,9 @@ def createimage():
 
 @app.route('/resize', methods=['GET'])
 def resizeimage():
-    UID = uuid.uuid1()
     w = int(request.args['w'])
     h = int(request.args['h'])
     cover = request.args['image']
-    inputfile = f'input_{UID}.jpeg'
     response = requests.get(cover)
     inputfile = BytesIO(response.content)
     return send_file(resize_image(inputfile, w, h), mimetype='image/jpeg')
@@ -36,7 +33,8 @@ def resize_image(inputfile, w: int, h: int):
     image = Image.open(inputfile)
     resized_image = image.resize((w, h), Image.ANTIALIAS)
     img_io = BytesIO()
-    resized_image.save(img_io, 'JPEG')
+    rgb_im = resized_image.convert('RGB')
+    rgb_im.save(img_io, 'JPEG')
     img_io.seek(0)
     return img_io
 
