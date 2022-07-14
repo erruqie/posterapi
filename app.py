@@ -3,6 +3,7 @@ import uuid
 import textwrap
 import requests
 
+from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from flask import Flask, request, send_file
 
@@ -19,51 +20,49 @@ def createimage():
     inputfile = f'input_{UID}.png'
     response = requests.get(cover)
     open(inputfile, "wb").write(response.content)
+    return send_file(create_image(title, artist, genre, type, inputfile), mimetype='image/png')
 
-    outputfile = f'output_{UID}.png'
-    create_image(title, artist, genre, type, inputfile, outputfile)
-    os.remove(inputfile)
-    return send_file(outputfile)
-
-def create_image(title: str, artist: str, genre: str, type: str, inputfile: str,
-                       outputfile: str):
-    artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 60)
-    title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 90)
-    info_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 35)
+def create_image(title: str, artist: str, genre: str, type: str, inputfile: str):
+    artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 80)
+    title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 110)
+    info_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 40)
     cover = Image.open(inputfile)
-    background = Image.open('resources/images/bg_new_either.png')
-    small_cover = cover.resize((650, 650), Image.ANTIALIAS)
+    background = Image.open('resources/images/VK_post.png')
+    small_cover = cover.resize((750, 750), Image.ANTIALIAS)
     round_corner = circle_corner(small_cover, 35)
-    background.paste(round_corner, (670, 170), round_corner)
+    background.paste(round_corner, (1080, 165), round_corner)
     draw_title = ImageDraw.Draw(background)
 
-    artisty = 220
-    for line in textwrap.wrap(artist, width=15):
-        draw_title.text((60, artisty),
+    artisty = 256
+    for line in textwrap.wrap(artist, width=20):
+        draw_title.text((120, artisty),
                         line,
                         font=artist_font,
                         fill=('#DDEBF3'))
         artisty += artist_font.getsize(line)[1]
 
-    titley = artisty + 20
+    titley = artisty + 10
     for line in textwrap.wrap(title, width=10):
-        draw_title.text((60, titley),
+        draw_title.text((120, titley),
                         line,
                         font=title_font,
                         fill=("#FFFFFF"))
         titley += title_font.getsize(line)[1]
 
-    draw_title.text((274, 728),
+    draw_title.text((346, 871), # 730
                         type,
                         font=info_font,
                         fill=("#EBEEF0"))
 
-    draw_title.text((177, 783),
-                    genre,
-                    font=info_font,
-                    fill=("#EBEEF0"))
-    background.save(outputfile)
-    pass
+    draw_title.text((237, 926), # 786
+                        genre,
+                        font=info_font,
+                        fill=("#EBEEF0"))
+    img_io = BytesIO()
+    background.save(img_io, 'PNG')
+    img_io.seek(0)
+    os.remove(inputfile)
+    return img_io
 
 def circle_corner(img: Image.Image, radius: int):
     circle = Image.new('L', (radius * 2, radius * 2), 0)
