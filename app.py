@@ -26,7 +26,7 @@ def resizeimage():
     UID = uuid.uuid1()
     w = int(request.args['w'])
     h = int(request.args['h'])
-    cover = request.args['cover']
+    cover = request.args['image']
     inputfile = f'input_{UID}.jpeg'
     response = requests.get(cover)
     inputfile = BytesIO(response.content)
