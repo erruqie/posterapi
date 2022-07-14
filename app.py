@@ -17,15 +17,34 @@ def createimage():
     genre = request.args['genre']
     type = request.args['type']
     cover = request.args['cover']
-    inputfile = f'input_{UID}.png'
     response = requests.get(cover)
-    open(inputfile, "wb").write(response.content)
+    inputfile = BytesIO(response.content)
     return send_file(create_image(title, artist, genre, type, inputfile), mimetype='image/png')
 
-def create_image(title: str, artist: str, genre: str, type: str, inputfile: str):
-    artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 80)
-    title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 110)
-    info_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 40)
+@app.route('/resize', methods=['GET'])
+def resizeimage():
+    UID = uuid.uuid1()
+    w = int(request.args['w'])
+    h = int(request.args['h'])
+    cover = request.args['cover']
+    inputfile = f'input_{UID}.jpeg'
+    response = requests.get(cover)
+    inputfile = BytesIO(response.content)
+    return send_file(resize_image(inputfile, w, h), mimetype='image/jpeg')
+
+def resize_image(inputfile, w: int, h: int):
+    image = Image.open(inputfile)
+    resized_image = image.resize((w, h), Image.ANTIALIAS)
+    img_io = BytesIO()
+    resized_image.save(img_io, 'JPEG')
+    img_io.seek(0)
+    return img_io
+
+
+def create_image(title: str, artist: str, genre: str, type: str, inputfile):
+    artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 60)
+    title_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 90)
+    info_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 35)
     cover = Image.open(inputfile)
     background = Image.open('resources/images/VK_post.png')
     small_cover = cover.resize((750, 750), Image.ANTIALIAS)
@@ -61,7 +80,6 @@ def create_image(title: str, artist: str, genre: str, type: str, inputfile: str)
     img_io = BytesIO()
     background.save(img_io, 'PNG')
     img_io.seek(0)
-    os.remove(inputfile)
     return img_io
 
 def circle_corner(img: Image.Image, radius: int):
