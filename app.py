@@ -52,15 +52,15 @@ def create_image(title: str, artist: str, genre: str, type: str, inputfile):
 
     artisty = 256
     for line in textwrap.wrap(artist, width=20):
-        draw_title.text((120, artisty),
+        draw_title.text((100, artisty),
                         line,
                         font=artist_font,
                         fill=('#DDEBF3'))
         artisty += artist_font.getsize(line)[1]
 
     titley = artisty + 10
-    for line in textwrap.wrap(title, width=10):
-        draw_title.text((120, titley),
+    for line in textwrap.wrap(title, width=15):
+        draw_title.text((97, titley),
                         line,
                         font=title_font,
                         fill=("#FFFFFF"))
