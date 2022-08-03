@@ -1,4 +1,4 @@
-# flask_images_creator
+# images_api
 
 <details>
   <summary>Пример постера</summary>
