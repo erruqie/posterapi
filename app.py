@@ -1,5 +1,6 @@
-import os
-import uuid
+import quopri
+import qrcode
+import base64
 import textwrap
 import requests
 
@@ -9,7 +10,7 @@ from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
-@app.route('/createimage', methods=['GET'])
+@app.route('/make_poster', methods=['GET'])
 def createimage():
     title = request.args['title']
     artist = request.args['artist']
@@ -27,17 +28,26 @@ def resizeimage():
     cover = request.args['image']
     response = requests.get(cover)
     inputfile = BytesIO(response.content)
-    return send_file(resize_image(inputfile, w, h), mimetype='image/jpeg')
-
-def resize_image(inputfile, w: int, h: int):
     image = Image.open(inputfile)
     resized_image = image.resize((w, h), Image.ANTIALIAS)
     img_io = BytesIO()
     rgb_im = resized_image.convert('RGB')
     rgb_im.save(img_io, 'JPEG')
     img_io.seek(0)
-    return img_io
+    return send_file(img_io, mimetype='image/jpeg')
 
+@app.route('/make_qr', methods=['GET'])
+def makeqr():
+    url = request.args['url']
+    qr = qrcode.QRCode()
+    qr.add_data(url)
+    qr.make()
+    img = qr.make_image(fill_color=(107, 114, 128))
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    buffered.seek(0)
+    return send_file(buffered, mimetype='image/png')
+    
 
 def create_image(title: str, artist: str, genre: str, type: str, inputfile):
     artist_font = ImageFont.truetype('resources/fonts/Inter-Medium.ttf', 60)
