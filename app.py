@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import quopri
 import qrcode
 import base64
