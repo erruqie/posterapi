@@ -76,12 +76,12 @@ def create_image(title: str, artist: str, genre: str, type: str, inputfile):
                         fill=("#FFFFFF"))
         titley += title_font.getsize(line)[1]
 
-    draw_title.text((346, 871), # 730
+    draw_title.text((346, 874), # 730
                         type,
                         font=info_font,
                         fill=("#EBEEF0"))
 
-    draw_title.text((237, 926), # 786
+    draw_title.text((237, 929), # 786
                         genre,
                         font=info_font,
                         fill=("#EBEEF0"))
