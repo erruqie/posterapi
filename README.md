@@ -12,4 +12,4 @@ python3 main.py
 - [@clownless](https://github.com/clownless)
 - [@rfoxxxy](https://github.com/rfoxxxy)
 
-[GPL-3.0](./LICENSE) © [EITHER.DIGITAL](https://either.digital)
+[GPL-3.0](./LICENSE) © [@clownless](https://github.com/clownless) & [Paralone Media](https://vk.com/paralonemedia)
